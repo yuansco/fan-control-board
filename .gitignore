@@ -1,0 +1,4 @@
+Backup/
+Build/
+.vscode/
+Core/Frame/build_info.h
