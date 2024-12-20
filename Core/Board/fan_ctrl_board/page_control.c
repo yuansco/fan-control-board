@@ -316,7 +316,7 @@ void event_trigger(enum event_list event) {
                 } else {
                         save_setting_flag = 1;
                         /* start to count down save data screen */
-                        save_data_ticking = CONFIG_SAVE_DATA_SHOW_TICKING;
+                        save_data_ticking = SAVE_DATA_SHOW_TICKING;
                         /* show save setting */
                         memcpy(page_data, page_data_setup_save, sizeof(page_data_setup_save));
                         /* save setting */

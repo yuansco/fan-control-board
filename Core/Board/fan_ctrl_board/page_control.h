@@ -3,6 +3,8 @@
 #define __PAGE_CONTROL_H
 
 #define PAGE_FLASH_DELAY_MS 400
+#define SAVE_DATA_SHOW_TIME_MS 1200
+#define SAVE_DATA_SHOW_TICKING (SAVE_DATA_SHOW_TIME_MS/PAGE_FLASH_DELAY_MS)
 
 /* page list */
 enum page_list {
