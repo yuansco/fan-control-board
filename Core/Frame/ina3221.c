@@ -4,8 +4,10 @@
 
 #ifdef CONFIG_INA3221_DEBUG
 #define CPRINTF(format, args...) PRINTF("INA3221: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("INA3221: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 /* INA3221 - Ti current sense amplifiers */
@@ -19,7 +21,7 @@ static int ina3221_set_reg_pointer(uint8_t reg)
 						&reg, sizeof(reg), 1000);
 
 	if (re != HAL_OK)
-		CPRINTF("setup reg pointer fail! (%d)\r\n", re);
+		CPRINTS("setup reg pointer fail! (%d)", re);
 
 	return re;
 }
@@ -35,7 +37,7 @@ static int ina3221_read16(uint16_t reg, uint16_t *data)
 					(uint8_t *) &val, sizeof(val), 1000);
 
 	if (re != HAL_OK) {
-		CPRINTF("read16 reg:0x%02x fail!\r\n", reg);
+		CPRINTS("read16 reg:0x%02x fail!", reg);
 		return re;
 	}
 
@@ -54,7 +56,7 @@ static int ina3221_write16(uint16_t reg, uint16_t data)
 						(uint8_t*) &val, sizeof(val), 1000);
 
 	if (re)
-		CPRINTF("write16 reg:0x%02x data:0x%04x fail!\r\n", reg, data);
+		CPRINTS("write16 reg:0x%02x data:0x%04x fail!", reg, data);
 
 	return re;
 }
@@ -74,7 +76,7 @@ int ina3221_gat_data(enum ina3221_ch_id ch, int *bus_curr, int *bus_volt)
 		return EC_ERROR_UNKNOWN;
 	}
 
-	//CPRINTF("read16 SHUNT_VOLT 0x%02x (%d)\r\n", volt, volt);
+	//CPRINTS("read16 SHUNT_VOLT 0x%02x (%d)", volt, volt);
 
 	shunt_volt = INA3221_SHUNT_UV((int)volt);
 
@@ -103,7 +105,7 @@ int ina3221_gat_data(enum ina3221_ch_id ch, int *bus_curr, int *bus_volt)
 		return EC_ERROR_UNKNOWN;
 	}
 
-	//CPRINTF("read16 BUS_VOLT 0x%02x (%d)\r\n", volt, volt);
+	//CPRINTS("read16 BUS_VOLT 0x%02x (%d)", volt, volt);
 
 	*bus_volt = INA3221_BUS_MV(volt);
 
@@ -114,7 +116,7 @@ int ina3221_reset(void)
 {
 	uint16_t config = INA3221_CONFIG_REG | INA3221_REG_RST;
 
-	CPRINTF("reset\r\n");
+	CPRINTS("reset");
 
 	return ina3221_write16(INA3221_REG_CONFIG, config);
 }
@@ -130,10 +132,10 @@ int is_ina3221_ready(void)
 
 int ina3221_init(void)
 {
-	CPRINTF("init\r\n");
+	CPRINTS("init");
 
 	if (!is_ina3221_ready()) {
-		CPRINTF("Can not found ina3221!\r\n");
+		CPRINTS("Can not found ina3221!");
 		return EC_ERROR_UNKNOWN;
 	}
 
@@ -150,7 +152,7 @@ int ina3221_print(void)
 {
 	int volt = 0, curr = 0, watt = 0;
 
-	PRINTF("ina3221 read: \r\n");
+	CPRINTS("ina3221 read: ");
 
 	for(int i=0; i<INA3221_CH_COUNT; i++) {
 
@@ -158,7 +160,7 @@ int ina3221_print(void)
 
 		watt = (ABS(volt) * curr) / 1000;
 
-		PRINTF(" Ch%d %5dmV, %4dmA, %5dmW\r\n" ,(i+1), volt, curr, watt);
+		CPRINTS(" Ch%d %5dmV, %4dmA, %5dmW" ,(i+1), volt, curr, watt);
 	}
 
 	return EC_SUCCESS;

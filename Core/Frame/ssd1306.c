@@ -9,8 +9,10 @@
 
 #ifdef SSD1306_DEBUG
 #define CPRINTF(format, args...) PRINTF("SSD1306: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("SSD1306: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -88,7 +90,7 @@ int is_ssd1306_ready(void)
 // initialize the oled screen
 int ssd1306_init(void) {
 
-    CPRINTF("init\r\n");
+    CPRINTS("init");
     // Reset OLED
     ssd1306_Reset();
 
@@ -96,7 +98,7 @@ int ssd1306_init(void) {
     HAL_Delay(10);
 
         if (!is_ssd1306_ready()) {
-                CPRINTF("Can not found ssd1306!\r\n");
+                CPRINTS("Can not found ssd1306!");
                 return EC_ERROR_UNKNOWN;
         }
 

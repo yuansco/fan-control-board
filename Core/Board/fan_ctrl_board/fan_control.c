@@ -194,7 +194,7 @@ int fan_speed_control_loop(void) {
                 rpm_curr = fan_get_rpm();
 
                 if(rpm_curr == 0 && fan_get_duty() == 100) {
-                        PRINTF("Fan stalled!\r\n");
+                        PRINTS("Fan stalled!");
                         return EC_SUCCESS;
                 }
 
@@ -239,7 +239,7 @@ int fan_speed_control_loop(void) {
 #else
                 temp_actual = temp_curr;
 #endif
-                //PRINTF("temp_actual:%d\r\n",temp_actual);
+                //PRINTS("temp_actual:%d",temp_actual);
                 /* update fan duty by thermal control policy */
                 thermal_update_fan_duty(fan_temp_target, temp_actual);
 

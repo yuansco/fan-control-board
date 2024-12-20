@@ -19,8 +19,10 @@
 
 #ifdef CONFIG_PAGE_CONTROL_DEBUG
 #define CPRINTF(format, args...) PRINTF("PAGE: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("PAGE: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -167,7 +169,7 @@ int page_data_update_loop(void) {
         duty = fan_get_duty();
 
 
-        // CPRINTF("vbus=%5d ,vfan=%5d ,fan_rpm_actual=%4d ,fan_rpm_target=%4d ,duty=%3d\r\n",
+        // CPRINTS("vbus=%5d ,vfan=%5d ,fan_rpm_actual=%4d ,fan_rpm_target=%4d ,duty=%3d",
         //         vbus, vfan, fan_rpm_actual, fan_rpm_target, duty);
 
         switch (current_page)
@@ -263,7 +265,7 @@ void setup_next_item(void) {
         setup_point++;
         setup_point = setup_point % SETUP_POINT_COUNT;
 
-        PRINTF("setup_point: %d\r\n", setup_point);
+        CPRINTS("setup_point: %d", setup_point);
 }
 
 /* update setup_item */
@@ -290,7 +292,7 @@ void setup_item_change(void) {
 
 void event_trigger(enum event_list event) {
 
-        CPRINTF("event_trigger %d\r\n", event);
+        CPRINTS("event_trigger %d", event);
 
         switch (event)
         {
@@ -325,13 +327,13 @@ void event_trigger(enum event_list event) {
                 break;
         case EVENT_FAN_POWER:
                 if (current_page == PAGE_SETUP) {
-                        PRINTF("Prevent fan Power enable on setup page\r\n");
+                        CPRINTS("Prevent fan Power enable on setup page");
                         break;
                 }
 
                 int state = !gpio_get(GPIO_FAN_DC_CTRL);
 
-                PRINTF("FAN Power %sable\r\n", (state? "en" : "dis"));
+                CPRINTS("FAN Power %sable", (state? "en" : "dis"));
 
                 /* enable or disable fan power */
                 gpio_set(GPIO_FAN_DC_CTRL, state);
@@ -364,7 +366,7 @@ void enter_page(enum page_list page) {
         if(save_setting_flag == 0)
                 current_page = page % (PAGE_COUNT - 1);
 
-        CPRINTF("enter page: %s \r\n", page_name[current_page]);
+        CPRINTS("enter page: %s", page_name[current_page]);
 
         /* always disable fan power if user switch page due to different control mode */
         gpio_set(GPIO_FAN_DC_CTRL, 0);
@@ -408,7 +410,7 @@ void enter_page(enum page_list page) {
 
 void page_init(void) {
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         load_setting();
 

@@ -17,7 +17,7 @@
 /* override board_init function */
 __override void board_init(void) {
 
-        PRINTF("%s: %s\r\n", BOARDNAME, __func__);
+        PRINTS("%s: %s", BOARDNAME, __func__);
 
         /* button init */
         button_list[BUTTON_1].name = "SW_LEFT";

@@ -22,8 +22,10 @@
 
 #ifdef CONFIG_UART_DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#define PRINTS(...) {printf(__VA_ARGS__);printf("\r\n");}
 #else
 #define PRINTF(args...)
+#define PRINTFLN(args...)
 #endif
 
 /**

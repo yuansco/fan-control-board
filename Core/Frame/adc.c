@@ -13,8 +13,10 @@
 
 #ifdef CONFIG_ADC_DEBUG
 #define CPRINTF(format, args...) PRINTF("ADC: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("ADC: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 uint32_t adc_value[ADC_COUNT];
@@ -115,7 +117,7 @@ int adc_polling_loop(void) {
 
 int adc_init(void) {
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         // adc_print();
 
@@ -123,7 +125,7 @@ int adc_init(void) {
                 adc_value_scaling[i] = -1;
         }
 
-        CPRINTF("Start conversion\r\n");
+        CPRINTS("Start conversion");
         hook_call_loop(&adc_polling_loop, ADC_POLLING_TIME_MS);
 
         return EC_SUCCESS;
@@ -140,11 +142,11 @@ void adc_print(void) {
 
         //read_adc_all();
 
-        PRINTF("\r\nADC info:\r\n");
+        PRINTS("\r\nADC info:");
 
         for (id = 0; id < ARRAY_SIZE(adc_list); id++) {
 
-                PRINTF(" ADC %d\tname: %-10s\tread: %4d %s (%4d)\r\n", id,
+                PRINTS(" ADC %d\tname: %-10s\tread: %4d %s (%4d)", id,
                         adc_list[id].name,
                         adc_value_scaling[id],
                         adc_list[id].unit,

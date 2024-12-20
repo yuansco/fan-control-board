@@ -18,7 +18,7 @@
 
 int command_version(int argc, const char **argv) {
 
-        PRINTF("\r\n%s Ver: %s-%s-%s\r\n", BOARDNAME, VERSION, BUILD_COMMIT, BUILD_DATE);
+        PRINTS("\r\n%s Ver: %s-%s-%s", BOARDNAME, VERSION, BUILD_COMMIT, BUILD_DATE);
         return EC_SUCCESS;
 }
 
@@ -36,7 +36,7 @@ int command_ina(int argc, const char **argv) {
 
 int system_reboot(void) {
 
-        PRINTF("rebooting...\r\n");
+        PRINTS("rebooting...");
 
         /* disable interrupts */
         __disable_irq();
@@ -59,7 +59,7 @@ int command_reboot(int argc, const char **argv) {
                 if (*e || delay < 0 || delay > 100000)
                         return EC_ERROR_INVAL;
                 
-                PRINTF("system reboot after %d ms\r\n", delay);
+                PRINTS("system reboot after %d ms", delay);
 
                 hook_call_deferred(&system_reboot, delay);
                 return EC_SUCCESS;
@@ -84,16 +84,16 @@ int command_hook(int argc, const char **argv) {
 
 int command_help(int argc, const char **argv) {
 
-        PRINTF("\r\nKnown commands:\r\n\r\n");
+        PRINTS("\r\nKnown commands:\r\n");
 
         if (argc == 1) {
                 for (int i = 0; i < ARRAY_SIZE(command); i++)
-                        PRINTF(" %8s  %s\r\n", command[i].name, command[i].depiction);
+                        PRINTS(" %8s  %s", command[i].name, command[i].depiction);
                 return EC_SUCCESS;
         }
 
         for (int i = 0; i < ARRAY_SIZE(command); i++) {
-                PRINTF(" %s\r\n     Usage:%s\r\n     %s\r\n",
+                PRINTS(" %s\r\n     Usage:%s\r\n     %s",
                         command[i].name, command[i].arg_desc, command[i].depiction);
         }
 
@@ -111,13 +111,13 @@ int command_eeprom(int argc, const char **argv) {
                 if (*e || size < 0 || size > 256)
                         return EC_ERROR_INVAL;
 
-                PRINTF("dump eeprom %d Bytes\r\n", size);
+                PRINTS("dump eeprom %d Bytes", size);
 
                 at24c02_dump((uint8_t) size);
                 return EC_SUCCESS;
         }
 
-        PRINTF("dump eeprom\r\n");
+        PRINTS("dump eeprom");
 
         at24c02_dump(0xff);
         return EC_SUCCESS;
@@ -143,11 +143,11 @@ int command_gpioget(int argc, const char **argv) {
                 id = strtoi(argv[1], &e, 10);
 
                 if (*e || (id < 0) || (id >= GPIO_COUNT)) {
-                        PRINTF("gpio number (%d) error!\r\n", id);
+                        PRINTS("gpio number (%d) error!", id);
                         return EC_ERROR_INVAL;
                 }
 
-                PRINTF("%d\r\n", gpio_get(id));
+                PRINTS("%d", gpio_get(id));
                 return EC_SUCCESS;
         }
 
@@ -164,7 +164,7 @@ int command_gpioset(int argc, const char **argv) {
 
         id = strtoi(argv[1], &e, 10);
         if (*e || (id < 0) || (id >= GPIO_COUNT)) {
-                PRINTF("gpio number error!\r\n");
+                PRINTS("gpio number error!");
                 return EC_ERROR_INVAL;
         }
 
@@ -175,11 +175,11 @@ int command_gpioset(int argc, const char **argv) {
 
         state = !!strtoi(argv[2], &e, 10);
         if (*e) {
-                PRINTF("gpio state error!\r\n");
+                PRINTS("gpio state error!");
                 return EC_ERROR_INVAL;
         }
 
-        PRINTF("Set %s (%d) to %d\r\n", gpio_list[id].name, id, state);
+        PRINTS("Set %s (%d) to %d", gpio_list[id].name, id, state);
         gpio_set(id, state);
 
         return EC_SUCCESS;
@@ -191,7 +191,7 @@ int command_time(int argc, const char **argv) {
 
         time = (int) HAL_GetTick();
 
-        PRINTF(" system time: %02d.%03d (s)\r\n", (time / 1000), (time % 1000));
+        PRINTS(" system time: %02d.%03d (s)", (time / 1000), (time % 1000));
         return EC_SUCCESS;
 }
 
@@ -206,10 +206,10 @@ int command_test(int argc, const char **argv) {
 
         int i;
 
-        PRINTF(" argc: %d\r\n", argc);
+        PRINTS(" argc: %d", argc);
 
         for (i = 0; i < argc; i++)
-                PRINTF(" argv[%d]: \"%s\"\r\n", i, argv[i]);
+                PRINTS(" argv[%d]: \"%s\"", i, argv[i]);
 
         return EC_SUCCESS;
 }
@@ -239,7 +239,7 @@ int command_md(int argc, const char **argv) {
         p = (uint32_t *) addr;
 
         while (size-- > 0) {
-                PRINTF("  0x%08lx is 0x%08lx\r\n",
+                PRINTS("  0x%08lx is 0x%08lx",
                         (long unsigned int)p, *p);
                 p++;
         }
@@ -268,7 +268,7 @@ int command_led(int argc, const char **argv) {
                 if (*e || (id < 0) || (id >= LED_COUNT))
                         return EC_ERROR_INVAL;
 
-                PRINTF(" led id:%d name:%s read:%d\r\n",id,
+                PRINTS(" led id:%d name:%s read:%d",id,
                                         led_list[id].name, led_get(id));
                 return EC_SUCCESS;
         }
@@ -378,7 +378,7 @@ int command_i2cwrite(int argc, const char **argv) {
         rv = i2c_write(addr, reg, (uint8_t *)&data, 1);
 
         if (rv == EC_SUCCESS)
-                PRINTF("i2c write success!\r\n");
+                PRINTS("i2c write success!");
 
         return rv;
 }
@@ -440,7 +440,7 @@ int command_history(int argc, const char **argv) {
 
         if (argc == 2 && !strcasecmp(argv[1], "clear")) {
 
-                PRINTF("clear history command.\r\n");
+                PRINTS("clear history command.");
 
                 history_cnt = 0;
 
@@ -451,7 +451,7 @@ int command_history(int argc, const char **argv) {
 
         int offset = (history_cnt > BUFF_SIZE) ? (history_cnt - BUFF_SIZE):0;
         for (int i = 0; i < MIN(history_cnt, ARRAY_SIZE(history_buff)); i++)
-                PRINTF(" [%d] %s\r\n", (offset + i), history_buff[i]);
+                PRINTS(" [%d] %s", (offset + i), history_buff[i]);
 
         return EC_SUCCESS;
 }

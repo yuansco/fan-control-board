@@ -17,8 +17,10 @@
 
 #ifdef CONFIG_FAN_DEBUG
 #define CPRINTF(format, args...) PRINTF("FAN: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("FAN: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 static int fan_pwm_duty = 0;
@@ -99,7 +101,7 @@ int pwm_test_loop(void) {
         duty += step;
         fan_set_duty(duty); 
 
-        PRINTF("PWM: %d\r\n", duty);
+        CPRINTS("PWM: %d", duty);
         return EC_SUCCESS;
 }
 
@@ -130,7 +132,7 @@ int calculate_fan_speed_deferred(void) {
         if (cnt == 0) {
                 /* Sometimes lower pwm fails to drive the fan */
                 if (fan_pwm_duty >= 5) {
-                        PRINTF("Fan stalled!\r\n");
+                        CPRINTS("Fan stalled!");
                 }
                 fan_speed_rpm = 0;
         } else {
@@ -167,7 +169,7 @@ void fan_init(void) {
 
 void fan_print(void) {
 
-        PRINTF(" Fan ID: %d\t duty: %d\t rpm: %d\r\n", 0,
+        CPRINTS(" Fan ID: %d\t duty: %d\t rpm: %d", 0,
                         fan_pwm_duty,
                         fan_speed_rpm);
 

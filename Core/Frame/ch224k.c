@@ -9,8 +9,10 @@
 
 #ifdef CONFIG_PD_CH224K_DEBUG
 #define CPRINTF(format, args...) PRINTF("CH224K: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("CH224K: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 static int pd_state = PD_VOLT_5V;
@@ -55,12 +57,12 @@ int ch224k_check_volt(void) {
         vbus_target = pd_volt_value[pd_state] * 1000;
 
         if (ABS(vbus_target - vbus_curr) > PD_CHECK_VOLT_DIFF_MV) {
-                CPRINTF("pd request fail! config is %dV, but VBUS is %d.%02dV\r\n",
+                CPRINTS("pd request fail! config is %dV, but VBUS is %d.%02dV",
                                                 vbus_target, (vbus_curr/1000), (vbus_curr%1000/10));
                 board_error(0);
                 return EC_ERROR_UNKNOWN;
         } else {
-                CPRINTF("pd request success! current VBUS is %d.%02dV\r\n",
+                CPRINTS("pd request success! current VBUS is %d.%02dV",
                                                 (vbus_curr/1000), (vbus_curr%1000/10));
         }
 
@@ -113,7 +115,7 @@ int ch224k_select_pd_power(enum pd_volt volt)
 
 int ch224k_init(void)
 {
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         // default is 5V
         ch224k_select_pd_power(PD_VOLT_5V);
@@ -136,7 +138,7 @@ static const char *const pd_mode_name[] = {
 
 void pd_print(void) {
 
-        PRINTF("PD config is %s\r\n", pd_mode_name[pd_state]);
+        CPRINTS("PD config is %s", pd_mode_name[pd_state]);
 }
 #else
 void pd_print(void) {}

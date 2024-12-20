@@ -13,8 +13,10 @@
 
 #ifdef CONFIG_BUTTON_DEBUG
 #define CPRINTF(format, args...) PRINTF("BUTTON: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("BUTTON: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 int button_get(enum button_id id) {
@@ -60,7 +62,6 @@ __overridable void board_button_1_deferred(int state)
 
 int button_1_deferred(void) {
 
-        //PRINTF("button 1 state: %d\r\n", button_get(BUTTON_1));
         board_button_1_deferred(button_get(BUTTON_1));
         button_1_debounce = 0;
         return EC_SUCCESS;
@@ -81,7 +82,6 @@ __overridable void board_button_2_deferred(int state)
 
 int button_2_deferred(void) {
 
-        //PRINTF("button 2 state: %d\r\n", button_get(BUTTON_2));
         board_button_2_deferred(button_get(BUTTON_2));
         button_2_debounce = 0;
         return EC_SUCCESS;
@@ -102,7 +102,6 @@ __overridable void board_button_3_deferred(int state)
 
 int button_3_deferred(void) {
 
-        //PRINTF("button 2 state: %d\r\n", button_get(BUTTON_2));
         board_button_3_deferred(button_get(BUTTON_3));
         button_3_debounce = 0;
         return EC_SUCCESS;
@@ -177,10 +176,10 @@ void button_print(void) {
 
         int id;
 
-        PRINTF("\r\nButton info:\r\n");
+        PRINTS("\r\nButton info:");
 
         for (id = 0; id < ARRAY_SIZE(button_list); id++) {
-                PRINTF(" Button %d\tname: %s\t\tstate: %d\r\n", id,
+                CPRINTS(" Button %d\tname: %s\t\tstate: %d", id,
                         button_list[id].name,
                         button_get(id));
         }

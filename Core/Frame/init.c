@@ -34,7 +34,7 @@ void init() {
 
         __maybe_unused int i2c_fail = FALSE;
 
-        PRINTF("\r\n%s Ver: %s-%s-%s\r\n", BOARDNAME, VERSION, BUILD_COMMIT, BUILD_DATE);
+        PRINTS("\r\n%s Ver: %s-%s-%s", BOARDNAME, VERSION, BUILD_COMMIT, BUILD_DATE);
 
 #ifdef CONFIG_PD_CH224K
         ch224k_init();
@@ -77,13 +77,13 @@ void init() {
 
         board_init();
 
-        PRINTF("Init Done\r\n");
+        PRINTS("Init Done");
 
 #ifdef CONFIG_TASK
         task_run();
 #endif
 
-        PRINTF("ERROR: running with no task mode!\r\n");
+        PRINTS("ERROR: running with no task mode!");
 }
 
 

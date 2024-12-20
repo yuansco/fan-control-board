@@ -10,8 +10,10 @@
 
 #ifdef CONFIG_BOARD_INFO_DEBUG
 #define CPRINTF(format, args...) PRINTF("DATA: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("DATA: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 /**
@@ -38,10 +40,10 @@ void save_setting(void) {
         int fan_rpm_target = fan_control_get_target_rpm();
         int fan_temp_target = fan_control_get_target_temp();
 
-        CPRINTF("save setting...\r\n");
+        CPRINTS("save setting...");
 
-        // CPRINTF("fan_rpm_target:%d\r\n", fan_rpm_target);
-        // CPRINTF("fan_temp_target:%d\r\n", fan_temp_target);
+        // CPRINTS("fan_rpm_target:%d", fan_rpm_target);
+        // CPRINTS("fan_temp_target:%d", fan_temp_target);
 
         /* setup setup_item */
         ch224k_select_pd_power(setup_item[0]);
@@ -73,11 +75,11 @@ void save_setting(void) {
         for(int e=0; e<sizeof(buf); e++) {
                 PRINTF("%02x ",buf[e]);
         }
-        PRINTF("\r\n");
+        CPRINTS("");
 
         at24c02_write(0, buf, sizeof(buf));
 
-        CPRINTF("save_setting Done!\r\n");
+        CPRINTS("save_setting Done!");
 }
 
 int verify_data_header(void) {
@@ -89,7 +91,7 @@ int verify_data_header(void) {
 
         for (int i = 0; i < sizeof(buf); i++) {
                 if (buf[i] != buf_read[i]) {
-                        CPRINTF("eeprom data verify fail! EEPROM[%02x] is %02x, not %02x\r\n",
+                        CPRINTS("eeprom data verify fail! EEPROM[%02x] is %02x, not %02x",
                                         i, buf_read[i], buf[i]);
                         return EC_ERROR_UNKNOWN;
                 }
@@ -100,7 +102,7 @@ int verify_data_header(void) {
 /* load setting data from EEPROM */
 void load_setting(void) {
 
-        CPRINTF("load setting...\r\n");
+        CPRINTS("load setting...");
 
         /* Do not use EEPROM data if verify header fail */
         if (verify_data_header() == EC_SUCCESS) {
@@ -115,14 +117,14 @@ void load_setting(void) {
                 memcpy(&def_data, buf, sizeof(def_data));
         }
 
-        CPRINTF("fan_rpm_target %d\r\n", def_data.fan_rpm_target);
-        CPRINTF("fan_temp_target %d\r\n", def_data.fan_temp_target);
+        CPRINTS("fan_rpm_target %d", def_data.fan_rpm_target);
+        CPRINTS("fan_temp_target %d", def_data.fan_temp_target);
         fan_control_set_target_rpm(def_data.fan_rpm_target);
         fan_control_set_target_temp(def_data.fan_temp_target);
 
         /* setup setup_item */
         for(int i=0; i<4; i++) {
-                CPRINTF("setup_item[%d]:%02x \r\n", i, def_data.setup_item[i]);
+                CPRINTS("setup_item[%d]:%02x", i, def_data.setup_item[i]);
                 setup_item[i] = def_data.setup_item[i];
         }
 

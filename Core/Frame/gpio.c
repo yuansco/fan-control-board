@@ -13,8 +13,10 @@
 
 #ifdef CONFIG_GPIO_DEBUG
 #define CPRINTF(format, args...) PRINTF("GPIO: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("GPIO: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -47,7 +49,7 @@ struct gpio gpio_list[] = {
 
 int gpio_init(void) {
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         gpio_print();
 
@@ -66,12 +68,12 @@ static const char *const gpio_mode_name[] = {
 
 void gpio_print(void) {
 
-        PRINTF("GPIO info:\r\n");
+        CPRINTS("GPIO info:");
 
-        PRINTF("   id           GPIO   mode   state\r\n");
+        CPRINTS("   id           GPIO   mode   state");
 
         for (int id = 0; id < GPIO_COUNT; id++) {
-                PRINTF("   %2d  %13s    %3s       %d\r\n",
+                CPRINTS("   %2d  %13s    %3s       %d",
                         id,
                         gpio_list[id].name,
                         gpio_mode_name[gpio_list[id].mode],

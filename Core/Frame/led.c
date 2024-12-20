@@ -14,8 +14,10 @@
 
 #ifdef CONFIG_LED_DEBUG
 #define CPRINTF(format, args...) PRINTF("LED: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("LED: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -256,7 +258,7 @@ int led_green_deferred(void) {
 void led_update_behavior(enum led_id id, int step, struct led_behavior *list) {
 
         if (id >= LED_COUNT || id < 0) {
-                CPRINTF("%s: error led_id\r\n", __func__);
+                CPRINTS("%s: error led_id", __func__);
                 return;
         }
 
@@ -289,7 +291,7 @@ int led_init(void) {
 
         int id;
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         for (id = 0; id < ARRAY_SIZE(led_list); id++)
                 led_off(id);
@@ -329,10 +331,10 @@ void led_print(void) {
 
         int id;
 
-        PRINTF("LED info:\r\n");
+        CPRINTS("LED info:");
 
         for (id = 0; id < ARRAY_SIZE(led_list); id++) {
-                PRINTF(" [LED ID: %d]\r\n    name: %s\r\n    mode: %s\r\n    step: %d\r\n    state: %d\r\n", id,
+                CPRINTS(" [LED ID: %d]\r\n    name: %s\r\n    mode: %s\r\n    step: %d\r\n    state: %d", id,
                         led_list[id].name,
                         led_mode_name[led_list[id].mode],
                         led_list[id].step,
