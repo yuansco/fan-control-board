@@ -19,6 +19,7 @@ enum event_list {
         EVENT_SW_LEFT_LONG,
         EVENT_SW_RIGHT_SHORT,
         EVENT_SW_RIGHT_LONG,
+        EVENT_FAN_POWER,
         EVENT_COUNT
 };
 

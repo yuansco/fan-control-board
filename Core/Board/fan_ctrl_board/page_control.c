@@ -323,6 +323,29 @@ void event_trigger(enum event_list event) {
                         save_setting();
                 }
                 break;
+        case EVENT_FAN_POWER:
+                if (current_page == PAGE_SETUP) {
+                        PRINTF("Prevent fan Power enable on setup page\r\n");
+                        break;
+                }
+
+                int state = !gpio_get(GPIO_FAN_DC_CTRL);
+
+                PRINTF("FAN Power %sable\r\n", (state? "en" : "dis"));
+
+                /* enable or disable fan power */
+                gpio_set(GPIO_FAN_DC_CTRL, state);
+
+                if (state) {
+                        /* led green on */
+                        led_update_behavior(LED_GREEN, ARRAY_SIZE(led_on_behavior),
+                                (struct led_behavior *) &led_on_behavior);
+                } else {
+                        /* led green off */
+                        led_update_behavior(LED_GREEN, ARRAY_SIZE(led_off_behavior),
+                                (struct led_behavior *) &led_off_behavior);
+                }
+                break;
         default:
                 break;
         }

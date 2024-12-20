@@ -124,17 +124,9 @@ __override int __board_button_3_deferred(int state) {
 /* override button 3 behavior - SW_FAN_PWR */
 __override int board_button_3_deferred(int state) {
 
-        if (state == 1)
-                return EC_SUCCESS;
-
-        PRINTF("FAN Power enable enable\r\n");
-
-        /* enable fan power */
-        gpio_set(GPIO_FAN_DC_CTRL, 1);
-
-        /* led green on */
-        led_update_behavior(LED_GREEN, ARRAY_SIZE(led_on_behavior),
-                (struct led_behavior *) &led_on_behavior);
+        if (state == 0) {
+                event_trigger(EVENT_FAN_POWER);
+        }
 
         return EC_SUCCESS;
 }
@@ -147,6 +139,7 @@ static const char *const button_event_name[] = {
         [EVENT_SW_LEFT_LONG] = "left button long press",
         [EVENT_SW_RIGHT_SHORT] = "right button short press",
         [EVENT_SW_RIGHT_LONG] = "right button long press",
+        [EVENT_FAN_POWER] = "fan power press",
 };
 
 
