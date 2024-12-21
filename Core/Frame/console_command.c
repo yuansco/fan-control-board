@@ -121,7 +121,7 @@ int find_command(const char *name) {
         // NL or CR
         // '\n' = 10, '\r' = 13
         if (name[0] == 10 || name[0] == 13) {
-                PRINTF("\n>");
+                PRINTF("\r\n>");
                 return EC_COMMAND_NOT_FOUND;
         }
 
