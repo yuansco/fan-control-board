@@ -105,6 +105,9 @@ Support FAN function:
 #define CONFIG_FAN_DEBUG
 // #define CONFIG_FAN_PWM_TEST
 #define CONFIG_FAN_COMMAND
+/* Fan pin define */
+#define FAN_1_Pin FAN_TACH_Pin
+#define FAN_1_GPIO_Port FAN_TACH_GPIO_Port
 ```
 Support OLED SSD1306 function:
 ```c
