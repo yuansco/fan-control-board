@@ -23,21 +23,7 @@ int button_get(enum button_id id) {
         return HAL_GPIO_ReadPin(button_list[id].port, button_list[id].pin);
 }
 
-void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
-
-        if (GPIO_Pin == button_list[BUTTON_1].pin)
-                button_list[BUTTON_1].callback();
-        else if (GPIO_Pin == button_list[BUTTON_2].pin)
-                button_list[BUTTON_2].callback();
-        else if (GPIO_Pin == button_list[BUTTON_3].pin)
-                button_list[BUTTON_3].callback();
-        else if (GPIO_Pin == button_list[BUTTON_4].pin)
-                button_list[BUTTON_4].callback();
-        else
-                return;
-}
-
-void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
+void button_interrupt_callback(uint16_t GPIO_Pin) {
 
         if (GPIO_Pin == button_list[BUTTON_1].pin)
                 button_list[BUTTON_1].callback();

@@ -1,5 +1,6 @@
 
 #include "board.h"
+#include "button.h"
 #include "gpio.h"
 #include "main.h"
 #include "console.h"
@@ -55,6 +56,26 @@ int gpio_init(void) {
 
         return EC_SUCCESS;
 }
+
+/******************************************************************************/
+/* GPIO interrupt */
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
+
+#ifdef CONFIG_BUTTON
+        button_interrupt_callback(GPIO_Pin);
+#endif
+
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
+
+#ifdef CONFIG_BUTTON
+        button_interrupt_callback(GPIO_Pin);
+#endif
+
+}
+
 
 /******************************************************************************/
 /* GPIO console command */
