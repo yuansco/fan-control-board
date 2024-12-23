@@ -59,6 +59,7 @@ void pwm_increase_duty(enum fan_id id);
 //int board_tach_callback(void); todo
 int fan_get_rpm(enum fan_id id);
 void fan_init(void);
+void fan_print(void);
 #ifdef CONFIG_FAN_PWM_TEST
 int pwm_test_loop(void);
 #endif

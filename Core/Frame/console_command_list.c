@@ -5,6 +5,7 @@
 #include "build_info.h"
 #include "console.h"
 #include "ch224k.h"
+#include "fan.h"
 #include "i2c.h"
 #include "ina3221.h"
 #include "task.h"
@@ -120,6 +121,12 @@ int command_eeprom(int argc, const char **argv) {
         PRINTS("dump eeprom");
 
         at24c02_dump(0xff);
+        return EC_SUCCESS;
+}
+
+int command_fan(int argc, const char **argv) {
+
+        fan_print();
         return EC_SUCCESS;
 }
 
@@ -558,6 +565,15 @@ struct console_command command[] = {
                 .handler = &command_eeprom,
         },
 #endif /* CONFIG_EEPROM_AT24C02_COMMAND */
+#ifdef CONFIG_FAN_COMMAND
+        [COMMAND_FAN] = {
+                .name = "fan",
+                .arg_desc = "fan",
+                .depiction = "Print all fan info",
+                .handler = &command_fan,
+        },
+#endif /* CONFIG_FAN_COMMAND */
+
 #ifdef CONFIG_GPIO_GET_COMMAND
         [COMMAND_GPIOGET] = {
                 .name = "gpioget",

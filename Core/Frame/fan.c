@@ -206,7 +206,7 @@ void fan_print(void) {
         int i;
 
         for(i=0; i<FAN_COUNT; i++) {
-                CPRINTS(" Fan ID: %d\t duty: %d\t rpm: %d", i,
+                PRINTS(" Fan ID: %d\t duty: %d\t rpm: %d", i,
                         fan_list[i].fan_pwm_duty,
                         fan_list[i].fan_speed_rpm);
         }

@@ -77,6 +77,9 @@ enum command_list {
 #ifdef CONFIG_EEPROM_AT24C02
         COMMAND_EEPROM,
 #endif
+#ifdef CONFIG_FAN_COMMAND
+        COMMAND_FAN,
+#endif
 #ifdef CONFIG_GPIO_GET_COMMAND
         COMMAND_GPIOGET,
 #endif
