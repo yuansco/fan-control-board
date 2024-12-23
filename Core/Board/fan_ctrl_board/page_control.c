@@ -165,8 +165,8 @@ int page_data_update_loop(void) {
         int temp_actual, temp_target;
 
         vfan = adc_value_scaling[FAN_PWR_MON];
-        fan_rpm_actual = fan_get_rpm();
-        duty = fan_get_duty();
+        fan_rpm_actual = fan_get_rpm(FAN_1);
+        duty = fan_get_duty(FAN_1);
 
 
         // CPRINTS("vbus=%5d ,vfan=%5d ,fan_rpm_actual=%4d ,fan_rpm_target=%4d ,duty=%3d",

@@ -23,28 +23,34 @@
 #define CPRINTS(format, args...)
 #endif
 
-static int fan_pwm_duty = 0;
-static int duty_step = 5;
 
-int fan_get_duty_step(void) {
-        return duty_step;
+void fan_interrupt_callback(uint16_t GPIO_Pin) {
+
+        if (GPIO_Pin == fan_list[FAN_1].tach_pin)
+                fan_list[FAN_1].tach_callback();
+        else
+                return;
 }
 
-int fan_set_duty_step(int step) {
+int fan_get_duty_step(enum fan_id id) {
+        return fan_list[id].duty_step;
+}
+
+int fan_set_duty_step(enum fan_id id, int step) {
 
         if(step > 100 || step < 0)
                 return EC_ERROR_INVAL;
 
-        duty_step = step;
+        fan_list[id].duty_step = step;
 
         return EC_SUCCESS;
 }
 
-int fan_get_duty(void) {
-        return fan_pwm_duty;
+int fan_get_duty(enum fan_id id) {
+        return fan_list[id].fan_pwm_duty;
 }
 
-void fan_set_duty(int duty) {
+void fan_set_duty(enum fan_id id, int duty) {
 
         int pulse;
 
@@ -54,9 +60,9 @@ void fan_set_duty(int duty) {
                 duty=100;
         }
 
-        fan_pwm_duty = duty;
+        fan_list[id].fan_pwm_duty = duty;
 
-        pulse = fan_pwm_duty * TIM_PERIOD / 100;
+        pulse = fan_list[id].fan_pwm_duty * TIM_PERIOD / 100;
 
         TIM_OC_InitTypeDef sConfigOC;
 
@@ -64,32 +70,32 @@ void fan_set_duty(int duty) {
         sConfigOC.Pulse = pulse;
         sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
         sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-        HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+        HAL_TIM_PWM_ConfigChannel(fan_list[id].timer, &sConfigOC, fan_list[id].channel);
 
-        HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+        HAL_TIM_PWM_Start(fan_list[id].timer, TIM_CHANNEL_1);
 }
 
-void pwm_decrease_duty(void) {
+void pwm_decrease_duty(enum fan_id id) {
 
-        int duty = fan_pwm_duty - duty_step;
+        int duty = fan_list[id].fan_pwm_duty - fan_list[id].duty_step;
 
         if (duty < 0)
                 duty = 0;
 
-        fan_set_duty(duty);
+        fan_set_duty(id, duty);
 }
 
-void pwm_increase_duty(void) {
+void pwm_increase_duty(enum fan_id id) {
 
-        int duty = fan_pwm_duty + duty_step;
+        int duty = fan_list[id].fan_pwm_duty + fan_list[id].duty_step;
 
         if (duty > 100)
                 duty = 100;
 
-        fan_set_duty(duty);
+        fan_set_duty(id, duty);
 }
 
-int pwm_test_loop(void) {
+__maybe_unused static int pwm_test_loop(void) {
 
         static int step, duty;
 
@@ -99,68 +105,96 @@ int pwm_test_loop(void) {
                 step = -5;
 
         duty += step;
-        fan_set_duty(duty); 
+        fan_set_duty(0, duty); 
 
-        CPRINTS("PWM: %d", duty);
+        CPRINTS("fan 0: %d", duty);
         return EC_SUCCESS;
 }
 
 /* Fan tachometer */
 
-static int cnt = 0;
-static int fan_speed_rpm;
-void start_fan_tach(void);
+static void start_fan_tach(void);
 
-int board_tach_callback(void) {
+static int fan_1_tach_callback(void) {
 
-        cnt++;
+        fan_list[0].tach_cnt++;
         return EC_SUCCESS;
 }
 
-int fan_get_rpm(void) {
+int fan_get_rpm(enum fan_id id) {
 
-        if (fan_speed_rpm > FAN_MAX_RPM)
+        if (fan_list[id].fan_speed_rpm > FAN_MAX_RPM)
                 return FAN_MAX_RPM;
-        if (fan_speed_rpm < 0)
+        if (fan_list[id].fan_speed_rpm < 0)
                 return 0;
 
-        return fan_speed_rpm;
+        return fan_list[id].fan_speed_rpm;
 }
 
-int calculate_fan_speed_deferred(void) {
+static int calculate_fan_speed_deferred(void) {
 
-        if (cnt == 0) {
-                /* Sometimes lower pwm fails to drive the fan */
-                if (fan_pwm_duty >= 5) {
-                        CPRINTS("Fan stalled!");
+        int i;
+
+        for(i=0; i<FAN_COUNT; i++) {
+
+                if (fan_list[i].tach_cnt == 0) {
+                        /* Sometimes lower pwm fails to drive the fan */
+                        if (fan_list[i].fan_pwm_duty >= 5) {
+                                CPRINTS("Fan %d stalled!", i);
+                        }
+                        fan_list[i].fan_speed_rpm = 0;
+                } else {
+                        fan_list[i].fan_speed_rpm = (fan_list[i].tach_cnt * (60000/FAN_TACH_SAMPLE_TIME_MS)) / FAN_TACH_PULSE;
                 }
-                fan_speed_rpm = 0;
-        } else {
-                fan_speed_rpm = (cnt * (60000/FAN_TACH_SAMPLE_TIME_MS)) / FAN_TACH_PULSE;
-        }
 
-        start_fan_tach();
+                start_fan_tach();
+        }
 
         return EC_SUCCESS;
 }
 
-void start_fan_tach(void) {
+static void start_fan_tach(void) {
 
-        cnt = 0;
+        int i;
+
+        for(i=0; i<FAN_COUNT; i++) {
+                fan_list[i].tach_cnt = 0;
+        }
         hook_call_deferred(&calculate_fan_speed_deferred, FAN_TACH_SAMPLE_TIME_MS);
 }
 
 void fan_init(void) {
 
+        int i;
+
         /* pwm init */
-        fan_set_duty(0);
+        for(i=0; i<FAN_COUNT; i++) {
+                fan_set_duty(i, 0);
+        }
 
 #ifdef CONFIG_FAN_PWM_TEST
-        hook_call_loop(&pwm_test_loop, 100);
+        hook_call_loop(&pwm_test_loop, 200);
 #endif
 
         start_fan_tach();
 }
+
+/******************************************************************************/
+
+struct fan fan_list[] = {
+        [FAN_1] = {
+                .name = "fan 1",
+                .timer = &htim3,
+                .channel = TIM_CHANNEL_1,
+                .tach_port = FAN_1_GPIO_Port,
+                .tach_pin = FAN_1_Pin,
+                .fan_pwm_duty = 0,
+                .duty_step = 5,
+                .tach_cnt = 0,
+                .fan_speed_rpm = 0,
+                .tach_callback = &fan_1_tach_callback,
+        },
+};
 
 /******************************************************************************/
 /* FAN console command */
@@ -169,10 +203,13 @@ void fan_init(void) {
 
 void fan_print(void) {
 
-        CPRINTS(" Fan ID: %d\t duty: %d\t rpm: %d", 0,
-                        fan_pwm_duty,
-                        fan_speed_rpm);
+        int i;
 
+        for(i=0; i<FAN_COUNT; i++) {
+                CPRINTS(" Fan ID: %d\t duty: %d\t rpm: %d", i,
+                        fan_list[i].fan_pwm_duty,
+                        fan_list[i].fan_speed_rpm);
+        }
 }
 
 #endif  /* CONFIG_FAN_COMMAND */

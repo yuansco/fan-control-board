@@ -105,8 +105,7 @@ enum gpio_id {
 #define BUTTON_2_GPIO_Port SW_RIGHT_GPIO_Port
 #define BUTTON_3_Pin SW_FAN_PWR_Pin
 #define BUTTON_3_GPIO_Port SW_FAN_PWR_GPIO_Port
-#define BUTTON_4_Pin FAN_TACH_Pin
-#define BUTTON_4_GPIO_Port FAN_TACH_GPIO_Port
+
 
 /**
  * PD
@@ -142,6 +141,10 @@ enum adc_ch {
 #define CONFIG_FAN_DEBUG
 // #define CONFIG_FAN_PWM_TEST
 #define CONFIG_FAN_COMMAND
+/* Fan pin define */
+#define FAN_1_Pin FAN_TACH_Pin
+#define FAN_1_GPIO_Port FAN_TACH_GPIO_Port
+
 
 /**
  * OLED SSD1306

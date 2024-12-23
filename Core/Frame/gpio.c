@@ -1,6 +1,7 @@
 
 #include "board.h"
 #include "button.h"
+#include "fan.h"
 #include "gpio.h"
 #include "main.h"
 #include "console.h"
@@ -65,6 +66,9 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
 #ifdef CONFIG_BUTTON
         button_interrupt_callback(GPIO_Pin);
 #endif
+#ifdef CONFIG_FAN
+        fan_interrupt_callback(GPIO_Pin);
+#endif
 
 }
 
@@ -72,6 +76,9 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
 
 #ifdef CONFIG_BUTTON
         button_interrupt_callback(GPIO_Pin);
+#endif
+#ifdef CONFIG_FAN
+        fan_interrupt_callback(GPIO_Pin);
 #endif
 
 }

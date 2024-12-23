@@ -47,7 +47,7 @@ void save_setting(void) {
 
         /* setup setup_item */
         ch224k_select_pd_power(setup_item[0]);
-        fan_set_duty_step(setup_subitem_pwm_step[setup_item[1]].value);
+        fan_set_duty_step(FAN_1, setup_subitem_pwm_step[setup_item[1]].value);
         fan_set_rpm_step(setup_subitem_rpm_step[setup_item[2]].value);
         fan_set_temp_step(setup_subitem_temp_step[setup_item[3]].value);
 
@@ -129,7 +129,7 @@ void load_setting(void) {
         }
 
         ch224k_select_pd_power(setup_item[0]);
-        fan_set_duty_step(setup_subitem_pwm_step[setup_item[1]].value);
+        fan_set_duty_step(FAN_1, setup_subitem_pwm_step[setup_item[1]].value);
         fan_set_rpm_step(setup_subitem_rpm_step[setup_item[2]].value);
         fan_set_temp_step(setup_subitem_temp_step[setup_item[3]].value);
 }

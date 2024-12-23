@@ -24,24 +24,26 @@ int button_get(enum button_id id) {
 }
 
 void button_interrupt_callback(uint16_t GPIO_Pin) {
-
+#if defined(BUTTON_1_GPIO_Port) && defined(BUTTON_1_Pin)
         if (GPIO_Pin == button_list[BUTTON_1].pin)
                 button_list[BUTTON_1].callback();
-        else if (GPIO_Pin == button_list[BUTTON_2].pin)
+#endif /* #if defined(BUTTON_1_GPIO_Port) && defined(BUTTON_1_Pin) */
+#if defined(BUTTON_2_GPIO_Port) && defined(BUTTON_2_Pin)
+        if (GPIO_Pin == button_list[BUTTON_2].pin)
                 button_list[BUTTON_2].callback();
-        else if (GPIO_Pin == button_list[BUTTON_3].pin)
+#endif /* #if defined(BUTTON_2_GPIO_Port) && defined(BUTTON_2_Pin) */
+#if defined(BUTTON_3_GPIO_Port) && defined(BUTTON_3_Pin)
+        if (GPIO_Pin == button_list[BUTTON_3].pin)
                 button_list[BUTTON_3].callback();
-        else if (GPIO_Pin == button_list[BUTTON_4].pin)
+#endif /* defined(BUTTON_3_GPIO_Port) && defined(BUTTON_3_Pin) */
+#if defined(BUTTON_4_GPIO_Port) && defined(BUTTON_4_Pin)
+        if (GPIO_Pin == button_list[BUTTON_4].pin)
                 button_list[BUTTON_4].callback();
-        else
-                return;
+#endif /* defined(BUTTON_4_GPIO_Port) && defined(BUTTON_4_Pin) */
 }
 
+#if defined(BUTTON_1_GPIO_Port) && defined(BUTTON_1_Pin)
 static uint8_t button_1_debounce = 0;
-static uint8_t button_2_debounce = 0;
-static uint8_t button_3_debounce = 0;
-static uint8_t button_4_debounce = 0;
-
 __overridable void board_button_1_deferred(int state)
 {
 }
@@ -62,6 +64,9 @@ int button_1_callback(void) {
         return EC_SUCCESS;
 }
 
+#endif /* #if defined(BUTTON_1_GPIO_Port) && defined(BUTTON_1_Pin) */
+#if defined(BUTTON_2_GPIO_Port) && defined(BUTTON_2_Pin)
+static uint8_t button_2_debounce = 0;
 __overridable void board_button_2_deferred(int state)
 {
 }
@@ -82,6 +87,9 @@ int button_2_callback(void) {
         return EC_SUCCESS;
 }
 
+#endif /* #if defined(BUTTON_2_GPIO_Port) && defined(BUTTON_2_Pin) */
+#if defined(BUTTON_3_GPIO_Port) && defined(BUTTON_3_Pin)
+static uint8_t button_3_debounce = 0;
 __overridable void board_button_3_deferred(int state)
 {
 }
@@ -101,7 +109,9 @@ int button_3_callback(void) {
         }
         return EC_SUCCESS;
 }
-
+#endif /* defined(BUTTON_3_GPIO_Port) && defined(BUTTON_3_Pin) */
+#if defined(BUTTON_4_GPIO_Port) && defined(BUTTON_4_Pin)
+static uint8_t button_4_debounce = 0;
 __overridable void board_button_4_deferred(int state)
 {
 }
@@ -122,7 +132,10 @@ int button_4_callback(void) {
         return EC_SUCCESS;
 }
 
+#endif /* defined(BUTTON_4_GPIO_Port) && defined(BUTTON_4_Pin) */
+
 struct button button_list[] = {
+#if defined(BUTTON_1_GPIO_Port) && defined(BUTTON_1_Pin)
         [BUTTON_1] = {
                 .name = "button 1",
                 .port = BUTTON_1_GPIO_Port,
@@ -130,6 +143,8 @@ struct button button_list[] = {
                 .debounce_ms = 200,
                 .callback = &button_1_callback,
         },
+#endif
+#if defined(BUTTON_2_GPIO_Port) && defined(BUTTON_2_Pin)
         [BUTTON_2] = {
                 .name = "button 2",
                 .port = BUTTON_2_GPIO_Port,
@@ -137,6 +152,8 @@ struct button button_list[] = {
                 .debounce_ms = 200,
                 .callback = &button_2_callback,
         },
+#endif
+#if defined(BUTTON_3_GPIO_Port) && defined(BUTTON_3_Pin)
         [BUTTON_3] = {
                 .name = "button 3",
                 .port = BUTTON_3_GPIO_Port,
@@ -144,6 +161,8 @@ struct button button_list[] = {
                 .debounce_ms = 200,
                 .callback = &button_3_callback,
         },
+#endif
+#if defined(BUTTON_4_GPIO_Port) && defined(BUTTON_4_Pin)
         [BUTTON_4] = {
                 .name = "button 4",
                 .port = BUTTON_4_GPIO_Port,
@@ -151,6 +170,7 @@ struct button button_list[] = {
                 .debounce_ms = 200,
                 .callback = &button_4_callback,
         },
+#endif
 };
 
 

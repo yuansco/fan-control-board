@@ -24,7 +24,7 @@ enum fan_control_mode_list {
         FAN_RPM_CTRL,
         FAN_THERMAL_CTRL,
         FAN_NO_CTRL,
-        FAN_COUNT
+        FAN_MODE_COUNT
 };
 
 struct fan_step {

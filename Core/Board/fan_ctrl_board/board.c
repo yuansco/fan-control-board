@@ -23,8 +23,6 @@ __override void board_init(void) {
         button_list[BUTTON_1].name = "SW_LEFT";
         button_list[BUTTON_2].name = "SW_RIGHT";
         button_list[BUTTON_3].name = "SW_FAN_PWR";
-        button_list[BUTTON_4].name = "FAN_TACH";
-        button_list[BUTTON_4].callback = &board_tach_callback;
 
         /* adc init */
         // TEMP_AMB - ADC_IN3 (PA3)

@@ -89,7 +89,7 @@ void fan_speed_up(void) {
         switch (fan_mode)
         {
         case FAN_DUTY_CTRL:
-                pwm_increase_duty();
+                pwm_increase_duty(FAN_1);
                 break;
         case FAN_RPM_CTRL:
                 fan_increase_rpm();
@@ -107,7 +107,7 @@ void fan_speed_down(void) {
         switch (fan_mode)
         {
         case FAN_DUTY_CTRL:
-                pwm_decrease_duty();
+                pwm_decrease_duty(FAN_1);
                 break;
         case FAN_RPM_CTRL:
                 fan_decrease_rpm();
@@ -159,7 +159,7 @@ void thermal_update_fan_duty(int temp_target, int temp_curr) {
                         break;
         }
 
-        fan_set_duty(fan_table[i].duty);
+        fan_set_duty(0, fan_table[i].duty);
 }
 
 int fan_speed_control_loop(void) {
@@ -169,7 +169,7 @@ int fan_speed_control_loop(void) {
         int temp_curr;
         int rpm_curr, rpm_diff;
 
-        duty = fan_get_duty();
+        duty = fan_get_duty(FAN_1);
 
         if (duty != 0)
                 /* yellow led blinking */
@@ -191,9 +191,9 @@ int fan_speed_control_loop(void) {
         case FAN_RPM_CTRL:
 
                 /* get current rpm */
-                rpm_curr = fan_get_rpm();
+                rpm_curr = fan_get_rpm(FAN_1);
 
-                if(rpm_curr == 0 && fan_get_duty() == 100) {
+                if(rpm_curr == 0 && fan_get_duty(FAN_1) == 100) {
                         PRINTS("Fan stalled!");
                         return EC_SUCCESS;
                 }
@@ -224,9 +224,9 @@ int fan_speed_control_loop(void) {
                  * decrease rpm if rpm_diff is negative.
                  */
                 if (rpm_diff > 0) {
-                        fan_set_duty(fan_get_duty() + fan_adjust_step);
+                        fan_set_duty(FAN_1, fan_get_duty(FAN_1) + fan_adjust_step);
                 } else if (rpm_diff < 0) {
-                        fan_set_duty(fan_get_duty() - fan_adjust_step);
+                        fan_set_duty(FAN_1, fan_get_duty(FAN_1) - fan_adjust_step);
                 }
                 break;
         case FAN_THERMAL_CTRL:
