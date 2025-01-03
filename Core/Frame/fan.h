@@ -27,7 +27,7 @@ enum fan_id {
 #define FAN_TACH_SAMPLE_TIME_MS 1000
 #define FAN_TACH_PULSE 2
 
-#define FAN_MAX_RPM 7000
+#define FAN_MAX_RPM 30000
 
 struct fan {
         /* fan name */

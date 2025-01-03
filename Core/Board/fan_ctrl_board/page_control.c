@@ -121,14 +121,15 @@ void format_data_line(int line, enum data_type t, int data) {
                         page_data[line][10] = ' ';
                 break;
         case DATA_TYPE_RPM:
-                // page_data[line] = " RPM:        7000"
-                page_data[line][13] = (char) (data / 1000 + 48);
+                // page_data[line] = " RPM:       12345"
+                page_data[line][12] = (char) (data / 10000 + 48);
+                page_data[line][13] = (char) (data % 10000 / 1000 + 48);
                 page_data[line][14] = (char) (data % 1000 / 100 + 48);
                 page_data[line][15] = (char) (data % 100 / 10 + 48);
                 page_data[line][16] = (char) (data % 10 + 48);
 
                 /* cut 0 in herder on each number*/
-                for (int i = 13; i < 16; i++) {
+                for (int i = 12; i < 16; i++) {
                         if (page_data[line][i] == '0')
                                 page_data[line][i] = ' ';
                         else
