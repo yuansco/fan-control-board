@@ -25,8 +25,13 @@ struct eeprom_data def_data = {
         .data_id = 0x32,
         /* eeprom data format version */
         .version = 1,
-        /* default setup_item:  */
-        .setup_item = {0, 1, 1 ,2},
+        /* default setup_item:
+         *     pd volt  = 2: 12V
+         *     pwm step = 2: 10%
+         *     rpm step = 1: 200
+         *     temp step = 2:  5
+         */
+        .setup_item = {2, 2, 1 ,2},
         /* default fan target rpm */
         .fan_rpm_target = 2000,
         /* default fan target temperature */
