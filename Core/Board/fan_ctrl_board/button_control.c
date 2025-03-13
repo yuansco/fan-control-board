@@ -26,7 +26,7 @@ int button_1_hold_deferred(void) {
                 button_1_hold_time++;
                 if (button_1_hold_time >= \
                 (LONG_PRESS_HOLD_TIME_MS - button_list[BUTTON_1].debounce_ms)/BUTTON_HOLD_SAMPLE_TIME_MS) {
-                        PRINTF("%s long press\r\n", button_list[BUTTON_1].name);
+                        PRINTS("%s long press", button_list[BUTTON_1].name);
                         // long press
                         button_1_hold_time = 0;
                         event_trigger(EVENT_SW_LEFT_LONG);
@@ -36,7 +36,7 @@ int button_1_hold_deferred(void) {
                 return EC_SUCCESS;
         } else {
                 // short press
-                PRINTF("%s short press\r\n", button_list[BUTTON_1].name);
+                PRINTS("%s short press", button_list[BUTTON_1].name);
                 event_trigger(EVENT_SW_LEFT_SHORT);
         }
 
@@ -48,7 +48,7 @@ int button_1_hold_deferred(void) {
 /* override button 1 behavior - SW_LEFT */
 __override int board_button_1_deferred(int state) {
 
-        PRINTF("%s %s\r\n", button_list[BUTTON_1].name, (state? "released" : "pressed"));
+        PRINTS("%s %s", button_list[BUTTON_1].name, (state? "released" : "pressed"));
 
         if (state == 0) {
                 hook_call_deferred(&button_1_hold_deferred, BUTTON_HOLD_SAMPLE_TIME_MS);
@@ -68,7 +68,7 @@ int button_2_hold_deferred(void) {
                 button_2_hold_time++;
                 if (button_2_hold_time >= \
                 (LONG_PRESS_HOLD_TIME_MS - button_list[BUTTON_2].debounce_ms)/BUTTON_HOLD_SAMPLE_TIME_MS) {
-                        PRINTF("%s long press\r\n", button_list[BUTTON_2].name);
+                        PRINTS("%s long press", button_list[BUTTON_2].name);
                         // long press
                         button_2_hold_time = 0;
                         event_trigger(EVENT_SW_RIGHT_LONG);
@@ -78,7 +78,7 @@ int button_2_hold_deferred(void) {
                 return EC_SUCCESS;
         } else {
                 // short press
-                PRINTF("%s short press\r\n", button_list[BUTTON_2].name);
+                PRINTS("%s short press", button_list[BUTTON_2].name);
                 event_trigger(EVENT_SW_RIGHT_SHORT);
         }
 
@@ -90,7 +90,7 @@ int button_2_hold_deferred(void) {
 /* override button 2 behavior - SW_RIGHT */
 __override int board_button_2_deferred(int state) {
 
-        PRINTF("%s %s\r\n", button_list[BUTTON_2].name, (state? "released" : "pressed"));
+        PRINTS("%s %s", button_list[BUTTON_2].name, (state? "released" : "pressed"));
 
         if (state == 0) {
                 hook_call_deferred(&button_2_hold_deferred, BUTTON_HOLD_SAMPLE_TIME_MS);
@@ -102,11 +102,11 @@ __override int board_button_2_deferred(int state) {
 /* override button 3 behavior - SW_FAN_PWR */
 __override int __board_button_3_deferred(int state) {
 
-        PRINTF("SW_FAN_PWR %s\r\n", (state? "on" : "off"));
+        PRINTS("SW_FAN_PWR %s", (state? "on" : "off"));
 
         gpio_set(GPIO_FAN_DC_CTRL, state);
 
-        PRINTF("FAN_DC_CTRL %sable\r\n", (state? "en" : "dis"));
+        PRINTS("FAN_DC_CTRL %sable", (state? "en" : "dis"));
 
         if (state == 1) {
                 /* led green on */
@@ -124,17 +124,9 @@ __override int __board_button_3_deferred(int state) {
 /* override button 3 behavior - SW_FAN_PWR */
 __override int board_button_3_deferred(int state) {
 
-        if (state == 1)
-                return EC_SUCCESS;
-
-        PRINTF("FAN Power enable enable\r\n");
-
-        /* enable fan power */
-        gpio_set(GPIO_FAN_DC_CTRL, 1);
-
-        /* led green on */
-        led_update_behavior(LED_GREEN, ARRAY_SIZE(led_on_behavior),
-                (struct led_behavior *) &led_on_behavior);
+        if (state == 0) {
+                event_trigger(EVENT_FAN_POWER);
+        }
 
         return EC_SUCCESS;
 }
@@ -147,6 +139,7 @@ static const char *const button_event_name[] = {
         [EVENT_SW_LEFT_LONG] = "left button long press",
         [EVENT_SW_RIGHT_SHORT] = "right button short press",
         [EVENT_SW_RIGHT_LONG] = "right button long press",
+        [EVENT_FAN_POWER] = "fan power press",
 };
 
 
@@ -159,9 +152,9 @@ int command_button(int argc, const char **argv) {
 
         if (argc == 1) {
 
-                PRINTF(" ID  Event\r\n");
+                PRINTS(" ID  Event");
                 for(int i=0; i<EVENT_COUNT; i++)
-                        PRINTF("  %d  %s\r\n", i, button_event_name[i]);
+                        PRINTS("  %d  %s", i, button_event_name[i]);
 
                 return EC_SUCCESS;
         }

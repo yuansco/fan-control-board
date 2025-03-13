@@ -19,8 +19,10 @@
 
 #ifdef CONFIG_PAGE_CONTROL_DEBUG
 #define CPRINTF(format, args...) PRINTF("PAGE: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("PAGE: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -119,14 +121,15 @@ void format_data_line(int line, enum data_type t, int data) {
                         page_data[line][10] = ' ';
                 break;
         case DATA_TYPE_RPM:
-                // page_data[line] = " RPM:        7000"
-                page_data[line][13] = (char) (data / 1000 + 48);
+                // page_data[line] = " RPM:       12345"
+                page_data[line][12] = (char) (data / 10000 + 48);
+                page_data[line][13] = (char) (data % 10000 / 1000 + 48);
                 page_data[line][14] = (char) (data % 1000 / 100 + 48);
                 page_data[line][15] = (char) (data % 100 / 10 + 48);
                 page_data[line][16] = (char) (data % 10 + 48);
 
                 /* cut 0 in herder on each number*/
-                for (int i = 13; i < 16; i++) {
+                for (int i = 12; i < 16; i++) {
                         if (page_data[line][i] == '0')
                                 page_data[line][i] = ' ';
                         else
@@ -163,11 +166,11 @@ int page_data_update_loop(void) {
         int temp_actual, temp_target;
 
         vfan = adc_value_scaling[FAN_PWR_MON];
-        fan_rpm_actual = fan_get_rpm();
-        duty = fan_get_duty();
+        fan_rpm_actual = fan_get_rpm(FAN_1);
+        duty = fan_get_duty(FAN_1);
 
 
-        // CPRINTF("vbus=%5d ,vfan=%5d ,fan_rpm_actual=%4d ,fan_rpm_target=%4d ,duty=%3d\r\n",
+        // CPRINTS("vbus=%5d ,vfan=%5d ,fan_rpm_actual=%4d ,fan_rpm_target=%4d ,duty=%3d",
         //         vbus, vfan, fan_rpm_actual, fan_rpm_target, duty);
 
         switch (current_page)
@@ -263,7 +266,7 @@ void setup_next_item(void) {
         setup_point++;
         setup_point = setup_point % SETUP_POINT_COUNT;
 
-        PRINTF("setup_point: %d\r\n", setup_point);
+        CPRINTS("setup_point: %d", setup_point);
 }
 
 /* update setup_item */
@@ -290,7 +293,7 @@ void setup_item_change(void) {
 
 void event_trigger(enum event_list event) {
 
-        CPRINTF("event_trigger %d\r\n", event);
+        CPRINTS("event_trigger %d", event);
 
         switch (event)
         {
@@ -316,11 +319,34 @@ void event_trigger(enum event_list event) {
                 } else {
                         save_setting_flag = 1;
                         /* start to count down save data screen */
-                        save_data_ticking = CONFIG_SAVE_DATA_SHOW_TICKING;
+                        save_data_ticking = SAVE_DATA_SHOW_TICKING;
                         /* show save setting */
                         memcpy(page_data, page_data_setup_save, sizeof(page_data_setup_save));
                         /* save setting */
                         save_setting();
+                }
+                break;
+        case EVENT_FAN_POWER:
+                if (current_page == PAGE_SETUP) {
+                        CPRINTS("Prevent fan Power enable on setup page");
+                        break;
+                }
+
+                int state = !gpio_get(GPIO_FAN_DC_CTRL);
+
+                CPRINTS("FAN Power %sable", (state? "en" : "dis"));
+
+                /* enable or disable fan power */
+                gpio_set(GPIO_FAN_DC_CTRL, state);
+
+                if (state) {
+                        /* led green on */
+                        led_update_behavior(LED_GREEN, ARRAY_SIZE(led_on_behavior),
+                                (struct led_behavior *) &led_on_behavior);
+                } else {
+                        /* led green off */
+                        led_update_behavior(LED_GREEN, ARRAY_SIZE(led_off_behavior),
+                                (struct led_behavior *) &led_off_behavior);
                 }
                 break;
         default:
@@ -341,7 +367,7 @@ void enter_page(enum page_list page) {
         if(save_setting_flag == 0)
                 current_page = page % (PAGE_COUNT - 1);
 
-        CPRINTF("enter page: %s \r\n", page_name[current_page]);
+        CPRINTS("enter page: %s", page_name[current_page]);
 
         /* always disable fan power if user switch page due to different control mode */
         gpio_set(GPIO_FAN_DC_CTRL, 0);
@@ -385,7 +411,7 @@ void enter_page(enum page_list page) {
 
 void page_init(void) {
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         load_setting();
 

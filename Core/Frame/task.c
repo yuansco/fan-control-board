@@ -9,8 +9,10 @@
 
 #ifdef CONFIG_TASK_DEBUG
 #define CPRINTF(format, args...) PRINTF("TASK: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("TASK: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -27,7 +29,7 @@ void task_update_waketime(enum task_list task_id, int time) {
 int task_update_pollingtime(enum task_list task_id, enum polling_time time) {
 
         if (time < TASK_POLLING_CRITICAL || time >= TASK_MAX) {
-                PRINTF("\r\n%s fail! id: %d, time:%d\r\n",
+                CPRINTS("\r\n%s fail! id: %d, time:%d",
                                         __func__, task_id, time);
                 return EC_ERROR_UNKNOWN;
         }
@@ -59,10 +61,10 @@ void task_print(void) {
 
         int id;
 
-        PRINTF("\r\nTask info:\r\n");
+        CPRINTS("\r\nTask info:");
 
         for (id = 0; id < ARRAY_SIZE(task_list); id++) {
-                PRINTF(" [Task ID: %d]\r\n    name: %s\r\n    task_id: %d\r\n    pollingtime: %d (ms)\r\n",id,
+                CPRINTS(" [Task ID: %d]\r\n    name: %s\r\n    task_id: %d\r\n    pollingtime: %d (ms)",id,
                 task_list[id].name, task_list[id].task_id, task_list[id].pollingtime);
         }
 }
@@ -71,13 +73,13 @@ void task_init(void) {
 
         int id;
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
-        CPRINTF("task list:\r\n");
+        CPRINTS("task list:");
 
         for (id = 0; id < ARRAY_SIZE(task_list); id++) {
 
-                PRINTF(" [%d]  %s\r\n      task_id:%d\r\n      pollingtime:%d\r\n", id,
+                CPRINTS(" [%d]  %s\r\n      task_id:%d\r\n      pollingtime:%d", id,
                 task_list[id].name, task_list[id].task_id, task_list[id].pollingtime);
 
                 // init waketime for first run
@@ -97,7 +99,7 @@ void task_run(void) {
         int id, rv;
         int time_start, time_spend, time_wake;
 
-        CPRINTF("Task Run!\r\n");
+        CPRINTS("Task Run!");
 
         while(1) {
 
@@ -115,7 +117,7 @@ void task_run(void) {
                                 rv = task_list[id].run(id);
 
                         if (rv != EC_SUCCESS)
-                                CPRINTF("[%d] %s return error! (%d)\r\n",
+                                CPRINTS("[%d] %s return error! (%d)",
                                 task_list[id].task_id, task_list[id].name, rv);
 
                         time_spend = HAL_GetTick() - time_start;

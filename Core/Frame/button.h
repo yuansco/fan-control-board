@@ -43,5 +43,6 @@ extern struct button button_list[BUTTON_COUNT];
 
 void button_print(void);
 int button_get(enum button_id id);
+void button_interrupt_callback(uint16_t GPIO_Pin);
 
 #endif /* __BUTTON_H__ */

@@ -11,8 +11,10 @@
 
 #ifdef CONFIG_TASK_DEBUG
 #define CPRINTF(format, args...) PRINTF("HOOK: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("HOOK: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -28,7 +30,7 @@ static int hook_find_next(int *index) {
         }
 
         if (i >= ARRAY_SIZE(hook_list)) {
-                PRINTF("hook overflow!\r\n");
+                CPRINTS("hook overflow!");
                 return EC_ERROR_UNKNOWN;
         }
 
@@ -75,7 +77,7 @@ static void hook_update_runtime(int hook_id, int time_start) {
                 hook_list[hook_id].runtime = time_start + hook_list[hook_id].pollingtime;
                 break;
         default:
-                CPRINTF("Unknown hook type!\r\n");
+                CPRINTS("Unknown hook type!");
                 hook_reset(hook_id);
                 break;
         }
@@ -86,7 +88,7 @@ int hook_call(int (*hook)(void), int time_delay, enum hook_type type) {
         int time_run, id, time_polling = 0;
 
         if (time_delay < 0 || time_delay >= HOOK_DELAY_MAX) {
-                CPRINTF("\r\n%s fail! time:%d\r\n", __func__, time_delay);
+                CPRINTS("\r\n%s fail! time:%d", __func__, time_delay);
                 return EC_ERROR_UNKNOWN;
         }
 
@@ -122,14 +124,14 @@ static int hook_deferred_print(void) {
 
         int run_time = HAL_GetTick();
 
-        CPRINTF("%s (%d)\r\n", __func__, (run_time - start_time));
+        CPRINTS("%s (%d)", __func__, (run_time - start_time));
 
         return EC_SUCCESS;
 }
 
 static void hook_test(void) {
 
-        CPRINTF("%s\r\n", __func__);
+        CPRINTS("%s", __func__);
 
         start_time = HAL_GetTick();
 
@@ -160,10 +162,10 @@ void hook_print(void) {
 
         int id;
 
-        PRINTF("\r\nHook info:\r\n");
+        CPRINTS("\r\nHook info:");
 
         for (id = 0; id < ARRAY_SIZE(hook_list); id++) {
-                PRINTF(" [%d] state:%s, type:%s, polling:%d, run:%d\r\n", id,
+                CPRINTS(" [%d] state:%s, type:%s, polling:%d, run:%d", id,
                         hook_state_name[hook_list[id].state],
                         hook_type_name[hook_list[id].type],
                         hook_list[id].pollingtime,
@@ -178,7 +180,7 @@ void hook_print(void) {
 
 void hook_init(void) {
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         for (int i = 0; i < ARRAY_SIZE(hook_list); i++)
                 hook_reset(i);
@@ -207,7 +209,7 @@ int hook_task(enum task_list task_id) {
                 rv = hook_list[id].routine();
 
                 if (rv)
-                        CPRINTF("hook return fail! (%d)\r\n", rv);
+                        CPRINTS("hook return fail! (%d)", rv);
 
                 hook_update_runtime(id, time_start);
         }

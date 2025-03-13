@@ -89,7 +89,7 @@ void fan_speed_up(void) {
         switch (fan_mode)
         {
         case FAN_DUTY_CTRL:
-                pwm_increase_duty();
+                pwm_increase_duty(FAN_1);
                 break;
         case FAN_RPM_CTRL:
                 fan_increase_rpm();
@@ -107,7 +107,7 @@ void fan_speed_down(void) {
         switch (fan_mode)
         {
         case FAN_DUTY_CTRL:
-                pwm_decrease_duty();
+                pwm_decrease_duty(FAN_1);
                 break;
         case FAN_RPM_CTRL:
                 fan_decrease_rpm();
@@ -123,27 +123,32 @@ void fan_speed_down(void) {
 /**
  * thermal control policy
  * 
- *      e.g. target temperature = 40
+ *      e.g. target temperature = 45
  * 
  *      temperature(C)     duty(%)
- *               35    ->   20
- *               40    ->   20
- *               41    ->   35
- *               42    ->   50
- *               43    ->   70
- *               44    ->   85
- *               45    ->   95
- *               46    ->  100
+ *                0    ->   10
+ *               25    ->   10
+ *               42    ->   15
+ *               43    ->   20
+ *               44    ->   25
+ *               45    ->   30
+ *               46    ->   45
+ *               47    ->   65
+ *               48    ->   90
+ *               49    ->  100
+ *               80    ->  100
  */
 
 const struct fan_step fan_table[] = {
-	{ .diff = 0, .duty = 20 },
-	{ .diff = 1, .duty = 35 },
-	{ .diff = 2, .duty = 50 },
-	{ .diff = 3, .duty = 70 },
-	{ .diff = 4, .duty = 85 },
-	{ .diff = 5, .duty = 95 },
-        { .diff = 6, .duty = 100 },
+        { .diff = -4, .duty = 10 },
+        { .diff = -3, .duty = 15 },
+        { .diff = -2, .duty = 20 },
+        { .diff = -1, .duty = 25 },
+        { .diff =  0, .duty = 30 },
+        { .diff =  1, .duty = 45 },
+        { .diff =  2, .duty = 65 },
+        { .diff =  3, .duty = 90 },
+        { .diff =  4, .duty = 100},
 };
 const int fan_table_count = ARRAY_SIZE(fan_table);
 
@@ -154,12 +159,13 @@ void thermal_update_fan_duty(int temp_target, int temp_curr) {
 
         temp_diff = temp_curr - temp_target;
 
-        for(i=0; i<ARRAY_SIZE(fan_table); i++) {
+        for(i=0; i<(fan_table_count-1); i++) {
                 if(temp_diff <= fan_table[i].diff)
                         break;
         }
 
-        fan_set_duty(fan_table[i].duty);
+        //PRINTS("i=%d, temp=%3d, duty=%3d\n", i, temp_curr, fan_table[i].duty);
+        fan_set_duty(0, fan_table[i].duty);
 }
 
 int fan_speed_control_loop(void) {
@@ -169,7 +175,7 @@ int fan_speed_control_loop(void) {
         int temp_curr;
         int rpm_curr, rpm_diff;
 
-        duty = fan_get_duty();
+        duty = fan_get_duty(FAN_1);
 
         if (duty != 0)
                 /* yellow led blinking */
@@ -191,10 +197,10 @@ int fan_speed_control_loop(void) {
         case FAN_RPM_CTRL:
 
                 /* get current rpm */
-                rpm_curr = fan_get_rpm();
+                rpm_curr = fan_get_rpm(FAN_1);
 
-                if(rpm_curr == 0 && fan_get_duty() == 100) {
-                        PRINTF("Fan stalled!\r\n");
+                if(rpm_curr == 0 && fan_get_duty(FAN_1) == 100) {
+                        PRINTS("Fan stalled!");
                         return EC_SUCCESS;
                 }
 
@@ -224,9 +230,9 @@ int fan_speed_control_loop(void) {
                  * decrease rpm if rpm_diff is negative.
                  */
                 if (rpm_diff > 0) {
-                        fan_set_duty(fan_get_duty() + fan_adjust_step);
+                        fan_set_duty(FAN_1, fan_get_duty(FAN_1) + fan_adjust_step);
                 } else if (rpm_diff < 0) {
-                        fan_set_duty(fan_get_duty() - fan_adjust_step);
+                        fan_set_duty(FAN_1, fan_get_duty(FAN_1) - fan_adjust_step);
                 }
                 break;
         case FAN_THERMAL_CTRL:
@@ -239,7 +245,7 @@ int fan_speed_control_loop(void) {
 #else
                 temp_actual = temp_curr;
 #endif
-                //PRINTF("temp_actual:%d\r\n",temp_actual);
+                //PRINTS("temp_actual:%d",temp_actual);
                 /* update fan duty by thermal control policy */
                 thermal_update_fan_duty(fan_temp_target, temp_actual);
 

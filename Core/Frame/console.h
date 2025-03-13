@@ -22,8 +22,10 @@
 
 #ifdef CONFIG_UART_DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#define PRINTS(...) {printf(__VA_ARGS__);printf("\r\n");}
 #else
 #define PRINTF(args...)
+#define PRINTFLN(args...)
 #endif
 
 /**
@@ -74,6 +76,9 @@ enum command_list {
 #endif
 #ifdef CONFIG_EEPROM_AT24C02
         COMMAND_EEPROM,
+#endif
+#ifdef CONFIG_FAN_COMMAND
+        COMMAND_FAN,
 #endif
 #ifdef CONFIG_GPIO_GET_COMMAND
         COMMAND_GPIOGET,

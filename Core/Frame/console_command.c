@@ -9,8 +9,10 @@
 
 #ifdef CONFIG_UART_DEBUG
 #define CPRINTF(format, args...) PRINTF("COMMAND: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("COMMAND: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -91,7 +93,7 @@ void save_command(void) {
 void echo_command(void) {
 
         if (console_buffer[0] != 10 && console_buffer[0] != 13) {
-                PRINTF("%s\r\n", (const char *) console_buffer);
+                PRINTS("%s", (const char *) console_buffer);
         }
 }
 #endif /* CONFIG_CONSOLE_COMMAND_ECHO */
@@ -119,7 +121,7 @@ int find_command(const char *name) {
         // NL or CR
         // '\n' = 10, '\r' = 13
         if (name[0] == 10 || name[0] == 13) {
-                PRINTF("\n>");
+                PRINTF("\r\n>");
                 return EC_COMMAND_NOT_FOUND;
         }
 
@@ -135,7 +137,7 @@ int find_command(const char *name) {
                         return i;
         }
 
-        PRINTF("command not found: %s\r\n", name);
+        PRINTS("command not found: %s", name);
         return EC_COMMAND_NOT_FOUND;
 }
 
@@ -171,11 +173,12 @@ int handle_command(void) {
         if (command[command_id].handler != NULL)
                 rv = command[command_id].handler(argc, (const char **) argv);
 
-        if (rv == EC_ERROR_INVAL)
-                CPRINTF("Invalid param.\r\nUsage:%s\r\n",
+        if (rv == EC_ERROR_INVAL) {
+                PRINTS("Invalid param.\r\nUsage:%s",
                                         command[command_id].arg_desc);
-        else if (rv != EC_SUCCESS)
-                CPRINTF("command return fail! (%d)\r\n", rv);
+        } else if (rv != EC_SUCCESS) {
+                PRINTS("command return fail! (%d)", rv);
+        }
 
         return rv;
 }
@@ -185,9 +188,9 @@ int handle_command(void) {
 
 int console_command_init(void)
 {
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
-        CPRINTF("enable uart interrupt\r\n");
+        CPRINTS("enable uart interrupt");
         console_enable_rx_interrupt();
         return EC_SUCCESS;
 }

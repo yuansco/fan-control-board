@@ -10,8 +10,10 @@
 
 #ifdef CONFIG_I2C_DEBUG
 #define CPRINTF(format, args...) PRINTF("I2C: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("I2C: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -24,14 +26,14 @@ int i2c_read(uint16_t addr, uint8_t reg, uint8_t *data, uint16_t size) {
                                                 &reg, sizeof(reg), 1000);
 
         if (re != EC_SUCCESS) {
-                CPRINTF("i2c read failed\r\n");
+                CPRINTS("i2c read failed");
                 return re;
         }
 
         re = HAL_I2C_Master_Receive(&hi2c1, (addr << 1), data, size, 1000);
 
         if (re != EC_SUCCESS)
-                CPRINTF("i2c read failed! (%d)\r\n", re);
+                CPRINTS("i2c read failed! (%d)", re);
 
         return re;
 }
@@ -50,7 +52,7 @@ int i2c_write(uint16_t addr, uint8_t reg, uint8_t *data, uint16_t size) {
                         data_write, sizeof(data_write), 1000);
 
         if (re != EC_SUCCESS)
-                CPRINTF("i2c write failed! (%d)\n\r", re);
+                CPRINTS("i2c write failed! (%d)\n\r", re);
 
         return re;
 }
@@ -71,7 +73,7 @@ int i2c_scan(void) {
 
         uint8_t i, re;
 
-        PRINTF("\r\nScanning I2C bus:\r\n");
+        CPRINTS("\r\nScanning I2C bus:");
 
         for (i = 1; i < 128; i++) {
 
@@ -80,7 +82,7 @@ int i2c_scan(void) {
 
                 if (re == EC_SUCCESS) {
                         // received ACK
-                        PRINTF("\r\n0x%02X\r\n", i);
+                        CPRINTS("\r\n0x%02X", i);
                         continue;
                 }
 
@@ -88,7 +90,7 @@ int i2c_scan(void) {
                  PRINTF(".");
         }
 
-        PRINTF("\r\n");
+        CPRINTS("");
         return EC_SUCCESS;
 }
 #else

@@ -7,8 +7,10 @@
 
 #ifdef CONFIG_EEPROM_AT24C02_DEBUG
 #define CPRINTF(format, args...) PRINTF("AT24C02: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("AT24C02: " format, ##args)
 #else
-#define CPRINTF(format, args...) 
+#define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 static int at24c02_set_reg_pointer(uint8_t reg)
@@ -18,8 +20,10 @@ static int at24c02_set_reg_pointer(uint8_t reg)
         re = HAL_I2C_Master_Transmit(&AT24C02_I2C_PORT,
                 (AT24C02_I2C_ADDR << 1),  &reg, sizeof(reg), 1000);
 
-        if (re != EC_SUCCESS)
-                CPRINTF("setup reg pointer fail! (%d)", re);
+        if (re != EC_SUCCESS) {
+                CPRINTS("setup reg pointer fail! (%d)", re);
+        }
+
 
         return re;
 }
@@ -34,8 +38,9 @@ int at24c02_read(uint8_t reg, uint8_t *data, int size) {
         re = HAL_I2C_Master_Receive(&AT24C02_I2C_PORT, (AT24C02_I2C_ADDR << 1),
                         data, size, 1000);
 
-        if (re != EC_SUCCESS)
-                CPRINTF("read failed\r\n");
+        if (re != EC_SUCCESS) {
+                CPRINTS("read failed");
+        }
 
         return re;
 }
@@ -44,8 +49,6 @@ int at24c02_write(uint8_t reg, uint8_t *data, int size) {
 
         uint8_t data_write[2];
         int i, re;
-
-        CPRINTF("\r\n");
 
         /* 
          * always write 1 byte once to support different page size EEPROM.
@@ -62,7 +65,7 @@ int at24c02_write(uint8_t reg, uint8_t *data, int size) {
                         data_write, sizeof(data_write), 1000);
                 
                 if (re != EC_SUCCESS) {
-                        PRINTF("i2c write failed! (%d)\r\n", re);
+                        CPRINTS("i2c write failed! (%d)", re);
                         return re;
                 }
         }
@@ -81,7 +84,7 @@ int __at24c02_write(uint8_t reg, uint8_t *data, int size) {
                 data_write[i + 1] = data[i];
 
         for(int e=0; e<sizeof(data_write); e++) {
-                PRINTF("%02x ",data_write[e]);
+                CPRINTF("%02x ",data_write[e]);
         }
 
         re = HAL_I2C_Master_Transmit(&AT24C02_I2C_PORT, (AT24C02_I2C_ADDR << 1),
@@ -95,7 +98,7 @@ void at24c02_dump(uint8_t size) {
         uint8_t vlue[size];
 
         if (size > 0xff) {
-                PRINTF("dump size over 0xFF!\r\n");
+                CPRINTS("dump size over 0xFF!");
                 return;
         }
 
@@ -127,12 +130,12 @@ static int at24c02_read_write_test(void) {
         uint8_t buf[] = {0x53, 0x54, 0x4d, 0x33, 0x32}; //STM32
         uint8_t buf_read[sizeof(buf)];
 
-        CPRINTF("read_write_test\r\n");
+        CPRINTS("read_write_test");
 
         CPRINTF("reg: %02x, data: ", reg);
         for (i = 0; i < sizeof(buf); i++)
                 PRINTF("%02x ", buf[i]);
-        PRINTF("\r\n");
+        PRINTS("");
 
         at24c02_write(reg, buf, sizeof(buf));
         HAL_Delay(10);
@@ -140,7 +143,7 @@ static int at24c02_read_write_test(void) {
 
         for (i = 0; i < sizeof(buf); i++) {
                 if (buf[i] != buf_read[i]) {
-                        CPRINTF("reg: %02x, test fail: %02x %02x\r\n",
+                        CPRINTS("reg: %02x, test fail: %02x %02x",
                                         i, buf[i], buf_read[i]);
                         return EC_ERROR_UNKNOWN;
                 }
@@ -151,7 +154,7 @@ static int at24c02_read_write_test(void) {
         CPRINTF("reg: %02x, data: ", reg);
         for (i = 0; i < sizeof(buf); i++)
                 PRINTF("%02x ", buf[i]);
-        PRINTF("\r\n");
+        CPRINTS("");
 
         at24c02_write(reg, buf, sizeof(buf));
         HAL_Delay(10);
@@ -159,13 +162,13 @@ static int at24c02_read_write_test(void) {
 
         for (i = 0; i < sizeof(buf); i++) {
                 if (buf[i] != buf_read[i]) {
-                        CPRINTF("reg: %02x, test fail: %02x %02x\r\n",
+                        CPRINTS("reg: %02x, test fail: %02x %02x",
                                         i, buf[i], buf_read[i]);
                         return EC_ERROR_UNKNOWN;
                 }
         }
 
-        CPRINTF("test pass\r\n");
+        CPRINTS("test pass");
         return EC_SUCCESS;
 }
 #endif
@@ -182,10 +185,10 @@ int is_at24c02_ready(void)
 
 int at24c02_init(void)
 {
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         if (!is_at24c02_ready()) {
-                CPRINTF("Can not found AT24C02!\r\n");
+                CPRINTS("Can not found AT24C02!");
                 return EC_ERROR_UNKNOWN;
         }
 

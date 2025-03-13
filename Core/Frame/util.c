@@ -129,7 +129,7 @@ void hexdump(const uint8_t *data, int len)
                         int c = j < len ? data[j] : ' ';
                         PRINTF("%c", isprint(c) ? c : '.');
                 }
-                PRINTF("|\r\n");
+                PRINTS("|");
         }
 }
 

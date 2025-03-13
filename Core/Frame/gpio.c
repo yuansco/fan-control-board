@@ -1,5 +1,7 @@
 
 #include "board.h"
+#include "button.h"
+#include "fan.h"
 #include "gpio.h"
 #include "main.h"
 #include "console.h"
@@ -13,8 +15,10 @@
 
 #ifdef CONFIG_GPIO_DEBUG
 #define CPRINTF(format, args...) PRINTF("GPIO: " format, ##args)
+#define CPRINTS(format, args...) PRINTS("GPIO: " format, ##args)
 #else
 #define CPRINTF(format, args...)
+#define CPRINTS(format, args...)
 #endif
 
 
@@ -47,12 +51,38 @@ struct gpio gpio_list[] = {
 
 int gpio_init(void) {
 
-        CPRINTF("init\r\n");
+        CPRINTS("init");
 
         gpio_print();
 
         return EC_SUCCESS;
 }
+
+/******************************************************************************/
+/* GPIO interrupt */
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
+
+#ifdef CONFIG_BUTTON
+        button_interrupt_callback(GPIO_Pin);
+#endif
+#ifdef CONFIG_FAN
+        fan_interrupt_callback(GPIO_Pin);
+#endif
+
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
+
+#ifdef CONFIG_BUTTON
+        button_interrupt_callback(GPIO_Pin);
+#endif
+#ifdef CONFIG_FAN
+        fan_interrupt_callback(GPIO_Pin);
+#endif
+
+}
+
 
 /******************************************************************************/
 /* GPIO console command */
@@ -66,12 +96,12 @@ static const char *const gpio_mode_name[] = {
 
 void gpio_print(void) {
 
-        PRINTF("GPIO info:\r\n");
+        CPRINTS("GPIO info:");
 
-        PRINTF("   id           GPIO   mode   state\r\n");
+        CPRINTS("   id           GPIO   mode   state");
 
         for (int id = 0; id < GPIO_COUNT; id++) {
-                PRINTF("   %2d  %13s    %3s       %d\r\n",
+                CPRINTS("   %2d  %13s    %3s       %d",
                         id,
                         gpio_list[id].name,
                         gpio_mode_name[gpio_list[id].mode],
