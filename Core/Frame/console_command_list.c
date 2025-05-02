@@ -79,6 +79,21 @@ int command_task(int argc, const char **argv) {
 
 int command_hook(int argc, const char **argv) {
 
+        char *e;
+        int debug_level;
+
+        if (argc > 1) {
+                debug_level = strtoi(argv[1], &e, 10);
+
+                if (*e || debug_level < 0 || debug_level > 1)
+                        return EC_ERROR_INVAL;
+
+                PRINTS("Set hook debug level=%d", debug_level);
+
+                hook_debug(debug_level);
+                return EC_SUCCESS;
+        }
+
         hook_print();
         return EC_SUCCESS;
 }
@@ -527,8 +542,8 @@ struct console_command command[] = {
 #ifdef CONFIG_TASK_HOOK_COMMAND
         [COMMAND_HOOK] = {
                 .name = "hook",
-                .arg_desc = "hook",
-                .depiction = "Print all hook information.",
+                .arg_desc = "hook [0|1]",
+                .depiction = "Print hook information or set debug level.",
                 .handler = &command_hook,
         },
 #endif /* CONFIG_TASK_HOOK && CONFIG_TASK_HOOK_COMMAND */

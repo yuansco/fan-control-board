@@ -7,7 +7,7 @@
 /******************************************************************************/
 /* Hook */
 
-#ifdef CONFIG_TASK_HOOK
+#if defined(CONFIG_TASK_HOOK) && !defined(CONFIG_TASK_HOOK_DYNAMIC)
 
 #ifdef CONFIG_TASK_DEBUG
 #define CPRINTF(format, args...) PRINTF("HOOK: " format, ##args)
@@ -17,8 +17,14 @@
 #define CPRINTS(format, args...)
 #endif
 
+static int hook_debug_level;
 
 struct hook_data hook_list[HOOK_BUFF_SIZE];
+
+void hook_debug(int debug_level) {
+
+        hook_debug_level = !!debug_level;
+}
 
 static int hook_find_next(int *index) {
 
@@ -50,6 +56,10 @@ static void hook_reset(int hook_id) {
         };
 
         hook_list[hook_id] = data;
+
+        // Debug information
+        if (hook_debug_level)
+                CPRINTS("removed hook %d", hook_id);
 }
 
 void hook_sleep(int hook_id) {
@@ -61,7 +71,7 @@ void hook_wake(int hook_id) {
 
         if (hook_list[hook_id].state != HOOK_STATE_SLEEP)
                 return;
-        
+
         hook_list[hook_id].state = HOOK_STATE_ACTIVE;
         hook_list[hook_id].runtime = 0;
 }
@@ -109,6 +119,11 @@ int hook_call(int (*hook)(void), int time_delay, enum hook_type type) {
                 return EC_COMMAND_NOT_FOUND;
 
         hook_list[id] = data;
+
+        // Debug information
+        if (hook_debug_level)
+                CPRINTS("added hook %d", id);
+
         task_wake(TASK_HOOK);
         return id;
 }
@@ -217,4 +232,4 @@ int hook_task(enum task_list task_id) {
         return EC_SUCCESS;
 }
 
-#endif /* CONFIG_TASK_HOOK */
+#endif /* defined(CONFIG_TASK_HOOK) && !defined(CONFIG_TASK_HOOK_DYNAMIC) */

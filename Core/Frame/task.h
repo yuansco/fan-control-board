@@ -4,13 +4,19 @@
 
 #include "board.h"
 #include "util.h"
+#include "linklist.h"
 
 /* should define in board.h if needed */
 //#define CONFIG_TASK
 //#define CONFIG_TASK_HOOK
+//#define CONFIG_TASK_HOOK_DYNAMIC
 //#define CONFIG_TASK_DEBUG
 //#define CONFIG_TASK_HOOK_TEST
 //#define CONFIG_TASK_HOOK_COMMAND
+
+#ifdef CONFIG_TASK_HOOK_DYNAMIC
+#define CONFIG_LINKLIST
+#endif
 
 /******************************************************************************/
 /* Task */
@@ -100,11 +106,17 @@ void task_run(void);
 #define hook_call_loop(hook, delay) hook_call(hook, delay, HOOK_TYPE_LOOP)
 int hook_call(int (*hook)(void), int time_delay, enum hook_type type);
 
+#ifdef CONFIG_TASK_HOOK_DYNAMIC
+void hook_sleep(ListNode *hook_node);
+void hook_wake(ListNode *hook_node);
+#else
 void hook_sleep(int hook_id);
 void hook_wake(int hook_id);
+#endif
 
 void hook_print(void);
 void hook_init(void);
+void hook_debug(int debug_level);
 int hook_task(enum task_list task_id);
 
 
