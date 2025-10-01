@@ -105,6 +105,9 @@ enum command_list {
 #ifdef CONFIG_INA3221_COMMAND
         COMMAND_INA3221,
 #endif
+#ifdef CONFIG_ADC_PAC1954_COMMAND
+        COMMAND_ADC_PAC1954,
+#endif
 #ifdef CONFIG_LED_COMMAND
         COMMAND_LED,
 #endif

@@ -9,7 +9,6 @@
 #include "led.h"
 #include "task.h"
 #include "util.h"
-#include "page_control.h"
 
 /* Fan PWM */
 

@@ -10,6 +10,7 @@
 #include "i2c.h"
 #include "ina3221.h"
 #include "main.h"
+#include "pac1954.h"
 #include "task.h"
 #include "ssd1306.h"
 #include "ssd1306_show.h"
@@ -74,7 +75,9 @@ void init() {
 #ifdef CONFIG_INA3221
         ina3221_init();
 #endif
-
+#ifdef CONFIG_ADC_PAC1954
+        pac1954_Init();
+#endif
         board_init();
 
         PRINTS("Init Done");

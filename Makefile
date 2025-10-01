@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = fan_ctrl_board
+TARGET = $(BOARD)
 
 
 #$(info $$BOARD is [${BOARD}])

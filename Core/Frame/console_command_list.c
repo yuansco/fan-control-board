@@ -8,6 +8,7 @@
 #include "fan.h"
 #include "i2c.h"
 #include "ina3221.h"
+#include "pac1954.h"
 #include "task.h"
 #include "gpio.h"
 #include "led.h"
@@ -32,6 +33,12 @@ int command_i2cscan(int argc, const char **argv) {
 int command_ina(int argc, const char **argv) {
 
         ina3221_print();
+        return EC_SUCCESS;
+}
+
+int command_pac(int argc, const char **argv) {
+
+        pac1954_print();
         return EC_SUCCESS;
 }
 
@@ -564,6 +571,14 @@ struct console_command command[] = {
                 .handler = &command_ina,
         },
 #endif /* CONFIG_INA3221_COMMAND */
+#ifdef CONFIG_ADC_PAC1954_COMMAND
+        [COMMAND_ADC_PAC1954] = {
+                .name = "pac",
+                .arg_desc = "pac",
+                .depiction = "Read and show all channel voltage and current.",
+                .handler = &command_pac,
+        },
+#endif /* CONFIG_ADC_PAC1954_COMMAND */
 #ifdef CONFIG_LED_COMMAND
         [COMMAND_LED] = {
                 .name = "led",
